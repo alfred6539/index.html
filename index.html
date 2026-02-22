@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALFRED SERVICE | Business Digital Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #a855f7;
+            --accent: #f43f5e;
+        }
+        body { 
+            background: #020617; 
+            color: white; 
+            font-family: 'Outfit', sans-serif; 
+            overflow-x: hidden;
+        }
+        /* Dégradé animé en arrière-plan */
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% -20%, #1e1b4b, #020617);
+            z-index: -1;
+        }
+        .gradient-border {
+            border: 1px solid;
+            border-image: linear-gradient(to right, var(--primary), var(--secondary)) 1;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateY(-8px);
+            border-color: var(--primary);
+        }
+        .btn-mix {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+        }
+        #cart-sidebar { transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1); }
+        .search-bar:focus { box-shadow: 0 0 0 2px var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <div onclick="toggleCart()" class="fixed bottom-8 right-8 z-[100] cursor-pointer btn-mix p-5 rounded-2xl shadow-2xl hover:scale-110 transition active:scale-95">
+        <i class="fas fa-shopping-bag text-2xl"></i>
+        <span id="cart-count" class="absolute -top-2 -right-2 bg-white text-black text-xs font-black px-2 py-1 rounded-lg">0</span>
+    </div>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-[#0f172a] z-[110] shadow-[-10px_0_30px_rgba(0,0,0,0.5)] translate-x-full p-8 border-l border-white/10">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-3xl font-extrabold tracking-tighter italic">MON <span class="text-sky-400">PANIER</span></h2>
+            <button onclick="toggleCart()" class="text-white/50 hover:text-white text-4xl">&times;</button>
+        </div>
+        <div id="cart-items" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            </div>
+        <div class="absolute bottom-0 left-0 w-full p-8 bg-[#0f172a] border-t border-white/10">
+            <div class="flex justify-between items-end mb-6">
+                <span class="text-white/50 uppercase text-xs font-bold tracking-widest">Total Estimé</span>
+                <span id="cart-total" class="text-3xl font-black text-white">0 FCFA</span>
+            </div>
+            <button onclick="sendWhatsApp()" class="w-full btn-mix text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 text-lg uppercase tracking-widest">
+                <i class="fab fa-whatsapp text-2xl"></i> Commander via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <nav class="sticky top-0 z-50 bg-[#020617]/80 backdrop-blur-md border-b border-white/5 px-6 py-4">
+        <div class="container mx-auto flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div class="text-2xl font-black tracking-tighter italic">ALFRED<span class="text-sky-400">SERVICE</span></div>
+            
+            <div class="relative w-full md:w-1/3">
+                <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Rechercher un service (ex: Netflix, VPN...)" 
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 pl-12 focus:outline-none focus:border-sky-400 transition search-bar">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-white/30"></i>
+            </div>
+        </div>
+    </nav>
+
+    <header class="py-20 px-6 text-center">
+        <h1 class="text-6xl md:text-8xl font-black mb-6 tracking-tighter uppercase leading-none">
+            <span class="text-white">LE DIGITAL</span><br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-500">SANS LIMITES</span>
+        </h1>
+        <p class="text-white/60 max-w-2xl mx-auto text-lg md:text-xl font-light">Accédez aux meilleurs abonnements premium et formations du marché au prix le plus bas.</p>
+    </header>
+
+    <main class="container mx-auto px-6 pb-40">
+        
+        <div class="flex flex-wrap justify-center gap-3 mb-16">
+            <button onclick="filterCategory('all')" class="px-6 py-2 rounded-full border border-white/10 hover:bg-white hover:text-black transition font-bold text-sm">Tout voir</button>
+            <button onclick="filterCategory('Abonnement')" class="px-6 py-2 rounded-full border border-white/10 hover:bg-sky-500 transition font-bold text-sm">Streaming</button>
+            <button onclick="filterCategory('VPN')" class="px-6 py-2 rounded-full border border-white/10 hover:bg-purple-500 transition font-bold text-sm">VPN</button>
+            <button onclick="filterCategory('Formation')" class="px-6 py-2 rounded-full border border-white/10 hover:bg-emerald-500 transition font-bold text-sm">Formations</button>
+        </div>
+
+        <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            </div>
+
+    </main>
+
+    <script>
+        const products = [
+            { id: 1, cat: "Abonnement", name: "Netflix Premium", price: 3000, desc: "Ultra HD / 4 Écrans", icon: "fa-play" },
+            { id: 2, cat: "Abonnement", name: "IPTV Monde (1 Mois)", price: 3000, desc: "+15 000 Chaînes", icon: "fa-tv" },
+            { id: 3, cat: "Abonnement", name: "IPTV Monde (Illimité)", price: 16000, desc: "Accès à vie VIP", icon: "fa-infinity" },
+            { id: 4, cat: "VPN", name: "VPN Burkina / Côte d'Ivoire", price: 1500, desc: "🇧🇫 🇨🇮 Config High Speed", icon: "fa-shield-alt" },
+            { id: 5, cat: "VPN", name: "VPN Cameroun / Bénin", price: 1500, desc: "🇨🇲 🇧🇯 Navigation illimitée", icon: "fa-unlock" },
+            { id: 6, cat: "Formation", name: "Google VEO 3 Pack", price: 7500, desc: "IA & Création visuelle", icon: "fa-robot" },
+            { id: 7, cat: "Formation", name: "Pass TikTok Illimité", price: 6000, desc: "Monétisation complète", icon: "fa-brands fa-tiktok" },
+            { id: 8, cat: "Finance", name: "Carte Bancaire Virtuelle", price: 6000, desc: "Paiements internationaux", icon: "fa-credit-card" },
+            { id: 9, cat: "Finance", name: "Numéro Virtuel SMS", price: 7000, desc: "Vérification WhatsApp/TG", icon: "fa-comment-alt" },
+            { id: 10, cat: "Premium", name: "Canva Pro", price: 3000, desc: "Design Illimité", icon: "fa-palette" },
+            { id: 11, cat: "Web", name: "Site Web Vitrine Pro", price: 10000, desc: "Design Responsive", icon: "fa-globe" },
+            { id: 12, cat: "Sécurité", name: "Blocage Publicités", price: 2000, desc: "Zéro Pub sur tout", icon: "fa-ban" }
+        ];
+
+        let cart = [];
+
+        function displayProducts(items) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = items.map(p => `
+                <div class="glass-card p-6 rounded-[2rem] flex flex-col justify-between" data-category="${p.cat}">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-purple-600 flex items-center justify-center mb-6 shadow-lg">
+                            <i class="fas ${p.icon} text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1">${p.name}</h3>
+                        <p class="text-white/40 text-sm mb-6">${p.desc}</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-auto">
+                        <span class="text-xl font-black text-sky-400">${p.price} F</span>
+                        <button onclick="addToCart('${p.name}', ${p.price})" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white hover:text-black flex items-center justify-center transition active:scale-90">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query) || p.cat.toLowerCase().includes(query));
+            displayProducts(filtered);
+        }
+
+        function filterCategory(cat) {
+            if(cat === 'all') return displayProducts(products);
+            const filtered = products.filter(p => p.cat === cat);
+            displayProducts(filtered);
+        }
+
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('translate-x-full');
+        }
+
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+            // Petite notification visuelle
+            const count = document.getElementById('cart-count');
+            count.classList.add('scale-150', 'bg-emerald-500');
+            setTimeout(() => count.classList.remove('scale-150', 'bg-emerald-500'), 300);
+        }
+
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const countEl = document.getElementById('cart-count');
+            
+            countEl.innerText = cart.length;
+            countEl.classList.toggle('hidden', cart.length === 0);
+
+            container.innerHTML = cart.map((item, i) => `
+                <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <div>
+                        <p class="font-bold text-sm">${item.name}</p>
+                        <p class="text-xs text-sky-400 font-bold">${item.price} FCFA</p>
+                    </div>
+                    <button onclick="removeFromCart(${i})" class="text-white/20 hover:text-red-500 text-xl">&times;</button>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            totalEl.innerText = total.toLocaleString() + ' FCFA';
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function sendWhatsApp() {
+            if (cart.length === 0) return alert("Votre panier est vide.");
+            let total = cart.reduce((sum, item) => sum + item.price, 0);
+            let msg = "*COMMANDE SUR ALFRED SERVICE*\n\n";
+            cart.forEach((item, i) => msg += `${i+1}. ${item.name} (${item.price}F)\n`);
+            msg += `\n💰 *TOTAL : ${total} FCFA*`;
+            window.open(`https://wa.me/22665397842?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // Initialisation
+        displayProducts(products);
+    </script>
+</body>
+</html>
